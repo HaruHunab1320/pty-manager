@@ -29,6 +29,7 @@
  *   { "event": "error", "id": string, "message": string }
  *   { "event": "blocking_prompt", "id": string, "promptInfo": BlockingPromptInfo, "autoResponded": boolean }
  *   { "event": "login_required", "id": string, "instructions"?: string, "url"?: string }
+ *   { "event": "auth_required", "id": string, "info": AuthRequiredInfo }
  *   { "event": "message", "message": SessionMessage }
  *   { "event": "question", "id": string, "question": string }
  *   { "event": "list", "sessions": SessionInfo[] }
@@ -39,7 +40,7 @@
 import * as readline from 'readline';
 import { PTYManager } from './pty-manager';
 import { ShellAdapter } from './adapters';
-import type { SpawnConfig, SessionHandle, BlockingPromptInfo, SessionMessage, AutoResponseRule, BlockingPromptType, StallClassification } from './types';
+import type { SpawnConfig, SessionHandle, BlockingPromptInfo, SessionMessage, AutoResponseRule, BlockingPromptType, StallClassification, AuthRequiredInfo } from './types';
 
 interface SessionInfo {
   id: string;
@@ -162,6 +163,14 @@ manager.on('login_required', (handle: SessionHandle, instructions?: string, url?
     id: handle.id,
     instructions,
     url,
+  });
+});
+
+manager.on('auth_required', (handle: SessionHandle, info: AuthRequiredInfo) => {
+  emit({
+    event: 'auth_required',
+    id: handle.id,
+    info,
   });
 });
 

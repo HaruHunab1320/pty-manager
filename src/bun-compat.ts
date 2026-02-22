@@ -9,7 +9,7 @@ import { spawn, ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import * as path from 'path';
 import * as readline from 'readline';
-import type { SpawnConfig, AutoResponseRule, BlockingPromptType, SessionStatus, StallClassification } from './types';
+import type { SpawnConfig, AutoResponseRule, BlockingPromptType, SessionStatus, StallClassification, AuthRequiredInfo } from './types';
 
 /**
  * Serialized auto-response rule for IPC (pattern as string instead of RegExp)
@@ -280,6 +280,15 @@ export class BunCompatiblePTYManager extends EventEmitter {
         if (session) {
           session.status = 'authenticating';
           this.emit('login_required', session, event.instructions, event.url);
+        }
+        break;
+      }
+
+      case 'auth_required': {
+        const session = this.sessions.get(id!);
+        if (session) {
+          session.status = 'authenticating';
+          this.emit('auth_required', session, event.info as AuthRequiredInfo);
         }
         break;
       }

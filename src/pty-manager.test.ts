@@ -138,6 +138,7 @@ describe('PTYManager', () => {
       manager.on('session_stopped', handler);
       manager.on('session_error', handler);
       manager.on('login_required', handler);
+      manager.on('auth_required', handler);
       manager.on('blocking_prompt', handler);
       manager.on('message', handler);
       manager.on('question', handler);

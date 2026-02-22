@@ -929,17 +929,72 @@ describe('TUI key-sequence auto-response', () => {
     internals.outputBuffer = 'Sign in required';
 
     const loginHandler = vi.fn();
+    const authHandler = vi.fn();
     const blockingHandler = vi.fn();
     session.on('login_required', loginHandler);
+    session.on('auth_required', authHandler);
     session.on('blocking_prompt', blockingHandler);
 
     const handled = (session as unknown as { detectAndHandleBlockingPrompt: () => boolean }).detectAndHandleBlockingPrompt();
 
     expect(handled).toBe(true);
     expect(loginHandler).toHaveBeenCalledWith('Complete browser auth', 'https://example.com/device');
+    expect(authHandler).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'unknown',
+        url: 'https://example.com/device',
+        instructions: 'Complete browser auth',
+      })
+    );
     expect(blockingHandler).toHaveBeenCalledTimes(1);
     expect(blockingHandler.mock.calls[0][0].type).toBe('login');
     expect(blockingHandler.mock.calls[0][1]).toBe(false);
+  });
+
+  it('should emit auth_required with device_code details from detectLogin', () => {
+    const adapter = createMockAdapter();
+    adapter.detectLogin = () => ({
+      required: true,
+      type: 'device_code',
+      url: 'https://auth.openai.com/codex/device',
+      instructions: 'Enter code ABCD-1234 at the URL',
+      deviceCode: 'ABCD-1234',
+    });
+
+    const session = new PTYSession(
+      adapter,
+      { name: 'test', type: 'test' },
+      silentLogger as never,
+    );
+
+    const internals = getInternals(session);
+    internals.ptyProcess = {
+      write: vi.fn(),
+      kill: vi.fn(),
+      pid: 12345,
+      resize: vi.fn(),
+    };
+    internals._status = 'starting';
+    internals.outputBuffer = 'Open this link in your browser and enter this code: ABCD-1234';
+
+    const loginHandler = vi.fn();
+    const authHandler = vi.fn();
+    session.on('login_required', loginHandler);
+    session.on('auth_required', authHandler);
+
+    (session as unknown as { processOutputBuffer: () => void }).processOutputBuffer();
+
+    expect(loginHandler).toHaveBeenCalledWith(
+      'Enter code ABCD-1234 at the URL',
+      'https://auth.openai.com/codex/device'
+    );
+    expect(authHandler).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'device_code',
+        url: 'https://auth.openai.com/codex/device',
+        deviceCode: 'ABCD-1234',
+      })
+    );
   });
 });
 
