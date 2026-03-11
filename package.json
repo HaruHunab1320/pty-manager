@@ -1,6 +1,6 @@
 {
   "name": "pty-manager",
-  "version": "1.9.8",
+  "version": "1.10.0",
   "description": "PTY session manager with lifecycle management, pluggable adapters, and blocking prompt detection",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -60,6 +60,7 @@
   },
   "homepage": "https://github.com/HaruHunab1320/parallax/tree/main/packages/pty-manager#readme",
   "dependencies": {
+    "adapter-types": "workspace:^",
     "node-pty": "^1.0.0"
   },
   "devDependencies": {
