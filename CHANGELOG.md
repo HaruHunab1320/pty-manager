@@ -2,6 +2,11 @@
 
 All notable changes to `pty-manager` will be documented in this file.
 
+## [1.11.1] - 2026-05-26
+
+### Changed
+- Repository extracted from the parallax monorepo into its own standalone repo at `github.com/HaruHunab1320/pty-manager`. Package metadata (`repository`, `homepage`, `bugs`) updated accordingly. No source code changes.
+
 ## [1.11.0] - 2026-04-07
 
 ### Added
