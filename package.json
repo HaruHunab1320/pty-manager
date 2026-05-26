@@ -52,15 +52,14 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/HaruHunab1320/parallax.git",
-    "directory": "packages/pty-manager"
+    "url": "https://github.com/HaruHunab1320/pty-manager.git"
   },
   "bugs": {
-    "url": "https://github.com/HaruHunab1320/parallax/issues"
+    "url": "https://github.com/HaruHunab1320/pty-manager/issues"
   },
-  "homepage": "https://github.com/HaruHunab1320/parallax/tree/main/packages/pty-manager#readme",
+  "homepage": "https://github.com/HaruHunab1320/pty-manager#readme",
   "dependencies": {
-    "adapter-types": "workspace:^",
+    "adapter-types": "^0.2.0",
     "node-pty": "^1.0.0"
   },
   "devDependencies": {
