@@ -2,6 +2,16 @@
 
 All notable changes to `pty-manager` will be documented in this file.
 
+## [1.12.0] - 2026-07-11
+
+### Added
+- **`task_complete` events now carry the turn output** — `PTYSession` emits `task_complete(output)` and `PTYManager`/`BunCompatiblePTYManager` re-emit `task_complete(handle, output)`, where `output` is the session's output buffer captured immediately before it is cleared for the next turn. All four completion paths pass it (adapter fast-path, debounced idle detection, stall classification→ready, hook-driven completion), and the worker IPC protocol relays it in the Bun path.
+
+### Why
+Every completion path clears `outputBuffer` *before* emitting `task_complete` (deliberately — stale text must not re-trigger detection). But that made the event useless for reading the turn's output: any consumer calling `getOutputBuffer()` in its `task_complete` handler always got an empty string. parallax's runtime-local did exactly this, so agent turns arrived with no output, no summary, and no confidence signal despite the agent doing real work. The event payload is now the contract for turn output; `getOutputBuffer()` remains next-turn-scoped.
+
+Backward compatible: existing listeners that ignore the argument keep working.
+
 ## [1.11.1] - 2026-05-26
 
 ### Changed

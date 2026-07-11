@@ -52,7 +52,13 @@ export interface PTYSessionEvents {
   error: (error: Error) => void;
   stall_detected: (recentOutput: string, stallDurationMs: number) => void;
   status_changed: (status: SessionStatus) => void;
-  task_complete: () => void;
+  /**
+   * Fired when the agent's turn completes. `output` is the session's
+   * output buffer captured just before it is cleared for the next turn —
+   * consumers must use this payload rather than `getOutputBuffer()`,
+   * which is already empty by the time the event fires.
+   */
+  task_complete: (output: string) => void;
   tool_running: (info: ToolRunningInfo) => void;
 }
 
@@ -504,13 +510,14 @@ export class PTYSession extends EventEmitter {
       this._status === 'busy' &&
       this.adapter.detectTaskComplete?.(this.outputBuffer)
     ) {
+      const turnOutput = this.outputBuffer;
       this._status = 'ready';
       this._lastBlockingPromptHash = null;
       this._lastBlockingPromptEmitAt = 0;
       this.outputBuffer = '';
       this.clearStallTimer();
       this.emit('status_changed', 'ready');
-      this.emit('task_complete');
+      this.emit('task_complete', turnOutput);
       this.logger.info(
         { sessionId: this.id },
         'Task complete (adapter fast-path) — agent returned to idle prompt'
@@ -918,13 +925,14 @@ export class PTYSession extends EventEmitter {
         return;
       }
 
+      const turnOutput = this.outputBuffer;
       this._status = 'ready';
       this._lastBlockingPromptHash = null;
       this._lastBlockingPromptEmitAt = 0;
       this.outputBuffer = '';
       this.clearStallTimer();
       this.emit('status_changed', 'ready');
-      this.emit('task_complete');
+      this.emit('task_complete', turnOutput);
       this.traceTaskCompletion('transition_ready', { signal: true });
       this.logger.info(
         { sessionId: this.id },
@@ -1791,20 +1799,22 @@ export class PTYSession extends EventEmitter {
         this.resetStallTimer();
         // Intentionally silent — fires on every tool use and is too noisy even at debug level.
         break;
-      case 'task_complete':
+      case 'task_complete': {
         // Hook says the agent finished — transition to ready.
+        const turnOutput = this.outputBuffer;
         this._status = 'ready';
         this._lastBlockingPromptHash = null;
         this._lastBlockingPromptEmitAt = 0;
         this.outputBuffer = '';
         this.clearStallTimer();
         this.emit('status_changed', 'ready');
-        this.emit('task_complete');
+        this.emit('task_complete', turnOutput);
         this.logger.info(
           { sessionId: this.id, event },
           'Hook event: task_complete → ready'
         );
         break;
+      }
       case 'permission_approved':
         // Permission handled by hook — reset stall timer and clear the output
         // buffer so stale prompt text doesn't re-trigger detection. Keep the

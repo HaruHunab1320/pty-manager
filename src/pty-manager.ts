@@ -51,7 +51,12 @@ export interface PTYManagerEvents {
     stallDurationMs: number
   ) => void;
   session_status_changed: (session: SessionHandle) => void;
-  task_complete: (session: SessionHandle) => void;
+  /**
+   * Fired when a session's turn completes. `output` is the turn's output
+   * buffer captured before the session cleared it — use it instead of
+   * `getSession(id).getOutputBuffer()`, which is already empty here.
+   */
+  task_complete: (session: SessionHandle, output: string) => void;
   tool_running: (session: SessionHandle, info: ToolRunningInfo) => void;
 }
 
@@ -198,8 +203,8 @@ export class PTYManager extends EventEmitter {
       this.emit('session_status_changed', session.toHandle());
     });
 
-    session.on('task_complete', () => {
-      this.emit('task_complete', session.toHandle());
+    session.on('task_complete', (output: string) => {
+      this.emit('task_complete', session.toHandle(), output);
     });
 
     session.on('tool_running', (info: ToolRunningInfo) => {

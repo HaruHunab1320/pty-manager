@@ -178,6 +178,24 @@ describe('notifyHookEvent', () => {
       expect(completeHandler).toHaveBeenCalledOnce();
     });
 
+    it('passes the turn output as the task_complete payload (captured before the buffer clears)', () => {
+      const session = createSessionWithStatus('busy');
+      const internals = getInternals(session);
+      internals.outputBuffer = 'agent did things\nCONFIDENCE: 0.9';
+
+      const completeHandler = vi.fn();
+      session.on('task_complete', completeHandler);
+
+      session.notifyHookEvent('task_complete');
+
+      // Consumers can't read getOutputBuffer() here (already cleared);
+      // the event payload is the contract.
+      expect(completeHandler).toHaveBeenCalledWith(
+        'agent did things\nCONFIDENCE: 0.9'
+      );
+      expect(internals.outputBuffer).toBe('');
+    });
+
     it('clears stall timer', () => {
       const session = createSessionWithStatus('busy');
       const internals = getInternals(session);

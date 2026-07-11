@@ -357,7 +357,7 @@ export class BunCompatiblePTYManager extends EventEmitter {
         if (session) {
           session.status = 'ready';
           session.lastActivityAt = new Date();
-          this.emit('task_complete', session);
+          this.emit('task_complete', session, (event.output as string) ?? '');
         }
         break;
       }

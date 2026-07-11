@@ -227,10 +227,11 @@ manager.on('session_status_changed', (handle: SessionHandle) => {
   });
 });
 
-manager.on('task_complete', (handle: SessionHandle) => {
+manager.on('task_complete', (handle: SessionHandle, output: string) => {
   emit({
     event: 'task_complete',
     id: handle.id,
+    output,
   });
 });
 
