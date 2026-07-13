@@ -2,6 +2,14 @@
 
 All notable changes to `pty-manager` will be documented in this file.
 
+## [1.12.1] - 2026-07-13
+
+### Fixed
+- **Large/multi-line messages never submitted in TUI CLIs** — `send()` now wraps multi-line or >200-char payloads in bracketed-paste framing (`ESC[200~ … ESC[201~`) and scales the trailing-Enter delay with payload size. Kernel PTY chunking split large writes into multiple fragments that ink-based CLIs (Claude Code) each registered as a *separate paste*; the Enter sent 50ms after the write landed between fragments, leaving the input sitting unsubmitted (observed live as `[Pasted text #1..#16]` stuck in the input box and the session `busy` forever). Short single-chunk messages were unaffected, which made the failure length-dependent and intermittent.
+
+### Why
+Orchestrators send real task payloads — a coding task embedding a multi-KB plan is normal, not exceptional. Bracketed paste makes delivery atomic regardless of how the kernel chunks the write.
+
 ## [1.12.0] - 2026-07-11
 
 ### Added

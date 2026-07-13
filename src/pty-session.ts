@@ -1586,13 +1586,30 @@ export class PTYSession extends EventEmitter {
       timestamp: new Date(),
     };
 
-    // Write formatted text without Enter
+    // Write formatted text without Enter.
+    //
+    // Multi-line / large payloads get bracketed-paste framing: PTY writes
+    // are chunked by the kernel, and TUI apps (ink) interpret each chunk
+    // as a SEPARATE paste — the trailing Enter then lands between
+    // fragments and the input never submits (observed live: a multi-KB
+    // task stuck as "[Pasted text #1..#16]" in Claude Code's input box).
+    // Bracketed paste makes the whole payload one atomic paste.
     const formatted = this.adapter.formatInput(message);
-    this.writeRaw(formatted);
+    const needsPasteFraming =
+      formatted.includes('\n') || formatted.length > 200;
+    this.writeRaw(
+      needsPasteFraming ? `\x1b[200~${formatted}\x1b[201~` : formatted
+    );
 
     // Send Enter separately after a brief delay
-    // TUI-based CLIs need this as a discrete event to register the submission
-    setTimeout(() => this.sendKeys('enter'), 50);
+    // TUI-based CLIs need this as a discrete event to register the
+    // submission. Scale the delay with payload size so the app has
+    // consumed the paste before the Enter arrives.
+    const enterDelayMs = Math.min(
+      50 + Math.ceil(formatted.length / 1000) * 25,
+      400
+    );
+    setTimeout(() => this.sendKeys('enter'), enterDelayMs);
 
     this.logger.debug(
       { sessionId: this.id, input: message },
