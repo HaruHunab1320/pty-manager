@@ -1,6 +1,6 @@
 {
   "name": "pty-manager",
-  "version": "1.12.1",
+  "version": "1.12.2",
   "description": "PTY session manager with lifecycle management, pluggable adapters, and blocking prompt detection",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -26,13 +26,15 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "vitest",
+    "test": "vitest run",
     "test:run": "vitest run",
     "test:coverage": "vitest --coverage",
     "test:integration": "tsx test-integration.ts",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "pnpm run build",
+    "test:watch": "vitest",
+    "test:dist": "pnpm build && node --test tests/build-output/*.test.mjs"
   },
   "keywords": [
     "pty",
