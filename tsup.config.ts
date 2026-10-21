@@ -11,6 +11,9 @@ export default defineConfig([
     clean: true,
     minify: false,
     external: ['node-pty'],
+    // The ESM build needs __dirname, __filename and require shims: ensure-pty
+    // and bun-compat locate node-pty and the worker relative to this file.
+    shims: true,
   },
   // PTY worker (standalone Node.js script for Bun compatibility)
   {
