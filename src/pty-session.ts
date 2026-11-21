@@ -53,8 +53,8 @@ export interface PTYSessionEvents {
   stall_detected: (recentOutput: string, stallDurationMs: number) => void;
   status_changed: (status: SessionStatus) => void;
   /**
-   * Fired when the agent's turn completes. `output` is the session's
-   * output buffer captured just before it is cleared for the next turn —
+   * Fired when a turn completes without an unanswered question. `output` is
+   * the session's output buffer captured just before it is cleared for the next turn —
    * consumers must use this payload rather than `getOutputBuffer()`,
    * which is already empty by the time the event fires.
    */
@@ -280,6 +280,8 @@ export class PTYSession extends EventEmitter {
   // Task completion detection (idle detection when busy)
   private _taskCompleteTimer: ReturnType<typeof setTimeout> | null = null;
   private _taskCompletePending = false;
+  private _awaitingQuestionAnswer = false;
+  private _questionAnswerSubmitted = false;
   private static readonly TASK_COMPLETE_DEBOUNCE_MS = 1500;
 
   // Ready detection settle delay — defers session_ready until output goes quiet
@@ -510,14 +512,7 @@ export class PTYSession extends EventEmitter {
       this._status === 'busy' &&
       this.adapter.detectTaskComplete?.(this.outputBuffer)
     ) {
-      const turnOutput = this.outputBuffer;
-      this._status = 'ready';
-      this._lastBlockingPromptHash = null;
-      this._lastBlockingPromptEmitAt = 0;
-      this.outputBuffer = '';
-      this.clearStallTimer();
-      this.emit('status_changed', 'ready');
-      this.emit('task_complete', turnOutput);
+      if (!this.finishTurn()) return;
       this.logger.info(
         { sessionId: this.id },
         'Task complete (adapter fast-path) — agent returned to idle prompt'
@@ -861,12 +856,7 @@ export class PTYSession extends EventEmitter {
       }
 
       case 'task_complete':
-        this._status = 'ready';
-        this._lastBlockingPromptHash = null;
-        this._lastBlockingPromptEmitAt = 0;
-        this.outputBuffer = '';
-        this.clearStallTimer();
-        this.emit('ready');
+        if (!this.finishTurn(true)) break;
         this.logger.info(
           { sessionId: this.id },
           'Stall classified as task_complete, transitioning to ready'
@@ -886,6 +876,102 @@ export class PTYSession extends EventEmitter {
   // ─────────────────────────────────────────────────────────────────────────────
   // Task Completion Detection
   // ─────────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Classify a confirmed end of turn before discarding its output. An idle
+   * prompt can mean the agent is waiting for an answer, not that its task is done.
+   * All completion paths share this boundary; ordinary streamed output does not.
+   */
+  private finishTurn(classifierReady = false): boolean {
+    if (this._status === 'stopping' || this._status === 'stopped') return false;
+
+    // Security/configuration blockers take precedence over conversational parsing.
+    if (this.adapter.detectBlockingPrompt?.(this.outputBuffer).detected) {
+      this.detectAndHandleBlockingPrompt();
+      return false;
+    }
+    const login = this.adapter.detectLogin(this.outputBuffer);
+    if (login.required) {
+      this._status = 'authenticating';
+      this.cancelTaskComplete();
+      this.clearStallTimer();
+      this.emitAuthRequired(login);
+      return false;
+    }
+    // Redraws and duplicate hooks must not complete an unanswered question.
+    if (
+      this._awaitingQuestionAnswer &&
+      (!this._questionAnswerSubmitted || !this.outputBuffer.trim())
+    ) return false;
+
+    const turnOutput = this.outputBuffer;
+    // The confirmed boundary terminates the final line even if the terminal
+    // transport did not include a newline (e.g. an explicit completion hook).
+    const parsed = this.adapter.parseOutput(
+      turnOutput.endsWith('\n') ? turnOutput : `${turnOutput}\n`
+    );
+    const isQuestion = !!parsed?.isQuestion;
+    this._awaitingQuestionAnswer = isQuestion;
+    this._questionAnswerSubmitted = false;
+    this._status = 'ready';
+    this._lastBlockingPromptHash = null;
+    this._lastBlockingPromptEmitAt = 0;
+    this.outputBuffer = '';
+    this.cancelTaskComplete();
+    this.clearStallTimer();
+
+    if (isQuestion && parsed) {
+      this.emit('status_changed', 'ready');
+      this.emit('message', {
+        id: `${this.id}-msg-${++this.messageCounter}`,
+        sessionId: this.id,
+        direction: 'outbound',
+        type: parsed.type,
+        content: parsed.content,
+        metadata: parsed.metadata,
+        timestamp: new Date(),
+      } satisfies SessionMessage);
+      this.emit('question', parsed.content);
+      return false;
+    }
+    if (classifierReady) {
+      // Preserve the external stall classifier's existing ready-event contract.
+      this.emit('ready');
+    } else {
+      this.emit('status_changed', 'ready');
+      this.emit('task_complete', turnOutput);
+    }
+    return true;
+  }
+
+  /** Retire prompt text only after native input succeeds; navigation is not an answer. */
+  private writeTerminalInput(data: string, submitted = true): void {
+    if (!this.ptyProcess) throw new Error('Session not started');
+    const previousOutput = this.outputBuffer;
+    const awaitingAnswer = this._awaitingQuestionAnswer;
+    const previousStatus = this._status;
+    this.cancelTaskComplete();
+    if (awaitingAnswer && submitted) this._status = 'busy';
+    // Clear before writing so synchronous continuation output is retained.
+    this.outputBuffer = '';
+    try {
+      this.ptyProcess.write(data);
+    } catch (error) {
+      this.outputBuffer = previousOutput + this.outputBuffer;
+      this._status = previousStatus;
+      throw error;
+    }
+    this._lastBlockingPromptHash = null;
+    this._lastBlockingPromptEmitAt = 0;
+    if (awaitingAnswer && submitted) {
+      // Keep the question fence until the submitted turn produces output. An
+      // empty late hook from the old turn is not evidence that repair finished.
+      this._questionAnswerSubmitted = true;
+      this._status = 'busy';
+      this.emit('status_changed', 'busy');
+    }
+    this.resetStallTimer();
+  }
 
   /**
    * Schedule a task_complete transition after a debounce period.
@@ -925,14 +1011,7 @@ export class PTYSession extends EventEmitter {
         return;
       }
 
-      const turnOutput = this.outputBuffer;
-      this._status = 'ready';
-      this._lastBlockingPromptHash = null;
-      this._lastBlockingPromptEmitAt = 0;
-      this.outputBuffer = '';
-      this.clearStallTimer();
-      this.emit('status_changed', 'ready');
-      this.emit('task_complete', turnOutput);
+      if (!this.finishTurn()) return;
       this.traceTaskCompletion('transition_ready', { signal: true });
       this.logger.info(
         { sessionId: this.id },
@@ -1507,6 +1586,7 @@ export class PTYSession extends EventEmitter {
    * Try to parse the output buffer into structured messages
    */
   private tryParseOutput(): void {
+    if (this._awaitingQuestionAnswer) return;
     const parsed = this.adapter.parseOutput(this.outputBuffer);
 
     if (parsed?.isComplete) {
@@ -1523,6 +1603,10 @@ export class PTYSession extends EventEmitter {
         timestamp: new Date(),
       };
 
+      if (parsed.isQuestion) {
+        this._awaitingQuestionAnswer = true;
+        this._questionAnswerSubmitted = false;
+      }
       this.emit('message', message);
 
       // Also emit specific event for questions
@@ -1542,7 +1626,7 @@ export class PTYSession extends EventEmitter {
 
     this._lastActivityAt = new Date();
     const formatted = this.adapter.formatInput(data);
-    this.ptyProcess.write(`${formatted}\r`);
+    this.writeTerminalInput(`${formatted}\r`);
 
     this.logger.debug(
       { sessionId: this.id, input: data },
@@ -1559,7 +1643,11 @@ export class PTYSession extends EventEmitter {
     }
 
     this._lastActivityAt = new Date();
-    this.ptyProcess.write(data);
+    if (/[\r\n]/.test(data) && !data.includes(BRACKETED_PASTE_START)) {
+      this.writeTerminalInput(data);
+    } else {
+      this.ptyProcess.write(data);
+    }
   }
 
   /**
@@ -1571,6 +1659,12 @@ export class PTYSession extends EventEmitter {
    * during a render cycle.
    */
   send(message: string): SessionMessage {
+    if (!this.ptyProcess) throw new Error('Session not started');
+    const previousStatus = this._status;
+    const previousOutput = this.outputBuffer;
+    const previousSubmitted = this._questionAnswerSubmitted;
+    this._questionAnswerSubmitted = false;
+    this.cancelTaskComplete();
     this._status = 'busy';
     this.outputBuffer = ''; // Clear stale startup/previous-task text so detectReady guards don't false-negative
     this.emit('status_changed', 'busy');
@@ -1597,9 +1691,20 @@ export class PTYSession extends EventEmitter {
     const formatted = this.adapter.formatInput(message);
     const needsPasteFraming =
       formatted.includes('\n') || formatted.length > 200;
-    this.writeRaw(
-      needsPasteFraming ? `\x1b[200~${formatted}\x1b[201~` : formatted
-    );
+    try {
+      // Text (including pasted newlines) is not a submission until Enter below.
+      this._lastActivityAt = new Date();
+      this.ptyProcess.write(
+        needsPasteFraming ? `\x1b[200~${formatted}\x1b[201~` : formatted
+      );
+    } catch (error) {
+      this._status = previousStatus;
+      this.outputBuffer = previousOutput + this.outputBuffer;
+      this._questionAnswerSubmitted = previousSubmitted;
+      this.emit('status_changed', previousStatus);
+      this.resetStallTimer();
+      throw error;
+    }
 
     // Send Enter separately after a brief delay
     // TUI-based CLIs need this as a discrete event to register the
@@ -1609,7 +1714,13 @@ export class PTYSession extends EventEmitter {
       50 + Math.ceil(formatted.length / 1000) * 25,
       400
     );
-    setTimeout(() => this.sendKeys('enter'), enterDelayMs);
+    setTimeout(() => {
+      try {
+        this.sendKeys('enter');
+      } catch (error) {
+        this.emit('error', error);
+      }
+    }, enterDelayMs);
 
     this.logger.debug(
       { sessionId: this.id, input: message },
@@ -1645,9 +1756,6 @@ export class PTYSession extends EventEmitter {
     const keyList = Array.isArray(keys) ? keys : [keys];
     const normalized = PTYSession.normalizeKeyList(keyList);
     this._stallEmissionCount = 0;
-    this._lastBlockingPromptHash = null;
-    this._lastBlockingPromptEmitAt = 0;
-    this.outputBuffer = '';
     this.resetStallTimer();
 
     for (const key of normalized) {
@@ -1655,7 +1763,11 @@ export class PTYSession extends EventEmitter {
 
       if (sequence) {
         this._lastActivityAt = new Date();
-        this.ptyProcess.write(sequence);
+        if (['enter', 'ctrl+m', 'ctrl+j'].includes(key)) {
+          this.writeTerminalInput(sequence);
+        } else {
+          this.writeTerminalInput(sequence, false);
+        }
         this.logger.debug({ sessionId: this.id, key }, 'Sent special key');
       } else {
         this.logger.warn(
@@ -1817,15 +1929,7 @@ export class PTYSession extends EventEmitter {
         // Intentionally silent — fires on every tool use and is too noisy even at debug level.
         break;
       case 'task_complete': {
-        // Hook says the agent finished — transition to ready.
-        const turnOutput = this.outputBuffer;
-        this._status = 'ready';
-        this._lastBlockingPromptHash = null;
-        this._lastBlockingPromptEmitAt = 0;
-        this.outputBuffer = '';
-        this.clearStallTimer();
-        this.emit('status_changed', 'ready');
-        this.emit('task_complete', turnOutput);
+        if (!this.finishTurn()) break;
         this.logger.info(
           { sessionId: this.id, event },
           'Hook event: task_complete → ready'
