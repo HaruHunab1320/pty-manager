@@ -33,3 +33,31 @@ test('CommonJS build runs ensurePty', () => {
   ]);
   assert.match(out, /cjs-ok/);
 });
+
+for (const format of ['esm', 'cjs']) {
+  test(`${format} build actually spawns the native PTY`, () => {
+    const load = format === 'esm'
+      ? "import { PTYSession, ShellAdapter } from './dist/index.mjs';"
+      : "const { PTYSession, ShellAdapter } = require('./dist/index.js');";
+    const script = `${load}
+      const adapter = new ShellAdapter({ shell: '/bin/bash' });
+      adapter.getArgs = () => ['--noprofile', '--norc', '-c', 'printf native-pty-ok'];
+      const logger = { debug() {}, info() {}, warn() {}, error() {} };
+      const session = new PTYSession(adapter, {
+        id: 'dist-native-smoke', name: 'dist-native-smoke', type: 'shell',
+        inheritProcessEnv: false, env: { PATH: '/usr/bin:/bin' }
+      }, logger);
+      let output = '';
+      const timer = setTimeout(() => { session.kill('SIGKILL'); process.exitCode = 1; }, 5000);
+      session.on('output', data => { output += data; });
+      session.on('exit', code => {
+        clearTimeout(timer);
+        if (code !== 0 || !output.includes('native-pty-ok')) process.exitCode = 1;
+        else console.log('native-pty-ok');
+      });
+      session.start().catch(error => { clearTimeout(timer); console.error(error); process.exitCode = 1; });
+    `;
+    const out = run([...(format === 'esm' ? ['--input-type=module'] : []), '-e', script]);
+    assert.match(out, /native-pty-ok/);
+  });
+}

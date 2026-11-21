@@ -11,9 +11,12 @@ export default defineConfig([
     clean: true,
     minify: false,
     external: ['node-pty'],
-    // The ESM build needs __dirname, __filename and require shims: ensure-pty
-    // and bun-compat locate node-pty and the worker relative to this file.
+    // tsup supplies __dirname/__filename; its generic dynamic-require shim
+    // alone cannot load the external native node-pty module from ESM.
     shims: true,
+    banner: ({ format }) => format === 'esm' ? {
+      js: "import { createRequire as createNodeRequire } from 'node:module'; const require = createNodeRequire(import.meta.url);",
+    } : undefined,
   },
   // PTY worker (standalone Node.js script for Bun compatibility)
   {
