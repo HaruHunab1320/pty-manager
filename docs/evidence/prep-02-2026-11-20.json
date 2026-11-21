@@ -1,0 +1,540 @@
+{
+  "ticket": "LOOK-90",
+  "package": "pty-manager",
+  "version": "1.12.2",
+  "sourceBase": "cecabc7f59d99c0e77849b9b2041f56141577273",
+  "sourceState": "uncommitted changes awaiting independent review",
+  "sourceHashes": {
+    "tsup.config.ts": "d1d5e8438563ea87b0c54d469828ac13a6f03ef46e5fd8897f7988ab9e9eb4fd",
+    "package.json": "b49f6564ada9afd712021a812973e9a6c0b8e5cf2381964c1dafbc64543570a0",
+    "tests/build-output/module-formats.test.mjs": "e4bc90d79d89744e5dc717237a3f6f7f8c7bb4d9975ecc3710b0a43cd2f7629e",
+    "tests/build-output/installed-smoke.cjs": "862b0bbc1f65dbe5e3cd7c5b0c37a45ae1c9229690d93cad7b99e6f633cddf40",
+    "scripts/qualify-package.mjs": "dcff37c3b4b6b1f97ed90f5975f91d7f6db281badc5536abe49d4fa5a951e967",
+    "scripts/qualification-process.mjs": "ee0db59867721d226ba941458452338139454d03cb93464d4fa56354fc8f937a",
+    "tests/package-qualification/cleanup.test.mjs": "47bda07c57691d6e0440bcf0dcb19b21223285c7a9900133da6a9d46e7766e29",
+    "docs/package-qualification.md": "dd685f2bd9b4816b80af660eeaf24974cacf2f2fe68ace5864809fd442efefbc",
+    "CHANGELOG.md": "d05e03ab6b6f6e5598734610d11cd489ac6efafd08f7f47207cb480e383acc8e"
+  },
+  "sourceTests": {
+    "node": "24.22.1",
+    "passed": 242,
+    "files": 15
+  },
+  "typecheck": "passed",
+  "builtModuleTests": {
+    "passed": 4,
+    "nativeSpawnIncluded": true
+  },
+  "macos": {
+    "schemaVersion": 2,
+    "startedAt": "2026-11-20T23:49:39.143Z",
+    "node": "v24.22.1",
+    "platform": "darwin",
+    "arch": "arm64",
+    "status": "passed",
+    "checks": [
+      {
+        "mode": "cjs",
+        "cases": [
+          "spawn-output-input-resize-natural-exit",
+          "force-stop-and-reap",
+          "manager-shutdown-and-reap"
+        ],
+        "cleanup": "complete",
+        "remainingPids": 0
+      },
+      {
+        "mode": "esm",
+        "cases": [
+          "spawn-output-input-resize-natural-exit",
+          "force-stop-and-reap",
+          "manager-shutdown-and-reap"
+        ],
+        "cleanup": "complete",
+        "remainingPids": 0
+      }
+    ],
+    "cleanup": "complete",
+    "artifact": {
+      "sha256": "c46428ad701069cddd993077b430a13850cc50bba4ca4cd09b70a5ebf52bf4f7",
+      "integrity": "sha512-g6xR4pCFuqkWapLcs0PwfsOP18foOgRlTylqbR9n4TuIqwyH54XOMA4nx9NKuUMNfwIbncVS7TYoRxgud+kvBw=="
+    },
+    "scratch": "/var/folders/9g/qfwzcj9x4bv7yq2838f4cwdc0000gn/T/pty-qualification-test-Q5m32c/pty-package-qualification-VqY5MN",
+    "dependencies": {
+      "node_modules/adapter-types": {
+        "version": "0.2.1",
+        "integrity": "sha512-IdA9om1M/GGHGB08RHd68sq+BDwgVdThA3ZoewzoGGOQjHgq1KNZNUQk7eVGqw+qtMA/ceYy9GjXLo++7IoReA=="
+      },
+      "node_modules/node-addon-api": {
+        "version": "7.1.1",
+        "integrity": "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="
+      },
+      "node_modules/node-pty": {
+        "version": "1.1.0",
+        "integrity": "sha512-20JqtutY6JPXTUnL0ij1uad7Qe1baT46lyolh2sSENDd4sTzKZ4nmAFkeAARDKwmlLjPx6XKRlwRUxwjOy+lUg=="
+      },
+      "node_modules/pty-manager": {
+        "version": "1.12.2",
+        "integrity": "sha512-g6xR4pCFuqkWapLcs0PwfsOP18foOgRlTylqbR9n4TuIqwyH54XOMA4nx9NKuUMNfwIbncVS7TYoRxgud+kvBw=="
+      }
+    },
+    "processes": [
+      {
+        "pid": 60889,
+        "ownedPids": [
+          60889
+        ],
+        "remainingPids": [],
+        "cleanup": "complete"
+      },
+      {
+        "pid": 60948,
+        "ownedPids": [
+          60948,
+          60950,
+          61109,
+          61120
+        ],
+        "remainingPids": [],
+        "cleanup": "complete"
+      },
+      {
+        "pid": 61240,
+        "ownedPids": [
+          61240,
+          61241,
+          61406,
+          61418
+        ],
+        "remainingPids": [],
+        "cleanup": "complete"
+      }
+    ],
+    "cleanupErrors": [],
+    "finishedAt": "2026-11-20T23:49:53.532Z"
+  },
+  "linux": {
+    "schemaVersion": 2,
+    "startedAt": "2026-11-20T23:50:51.800Z",
+    "node": "v24.21.0",
+    "platform": "linux",
+    "arch": "x64",
+    "status": "passed",
+    "checks": [
+      {
+        "mode": "cjs",
+        "cases": [
+          "spawn-output-input-resize-natural-exit",
+          "force-stop-and-reap",
+          "manager-shutdown-and-reap"
+        ],
+        "cleanup": "complete",
+        "remainingPids": 0
+      },
+      {
+        "mode": "esm",
+        "cases": [
+          "spawn-output-input-resize-natural-exit",
+          "force-stop-and-reap",
+          "manager-shutdown-and-reap"
+        ],
+        "cleanup": "complete",
+        "remainingPids": 0
+      }
+    ],
+    "cleanup": "complete",
+    "artifact": {
+      "sha256": "c46428ad701069cddd993077b430a13850cc50bba4ca4cd09b70a5ebf52bf4f7",
+      "integrity": "sha512-g6xR4pCFuqkWapLcs0PwfsOP18foOgRlTylqbR9n4TuIqwyH54XOMA4nx9NKuUMNfwIbncVS7TYoRxgud+kvBw=="
+    },
+    "scratch": "/tmp/pty-qualification-test-5ubNP1/pty-package-qualification-ycT6YL",
+    "dependencies": {
+      "node_modules/adapter-types": {
+        "version": "0.2.1",
+        "integrity": "sha512-IdA9om1M/GGHGB08RHd68sq+BDwgVdThA3ZoewzoGGOQjHgq1KNZNUQk7eVGqw+qtMA/ceYy9GjXLo++7IoReA=="
+      },
+      "node_modules/node-addon-api": {
+        "version": "7.1.1",
+        "integrity": "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="
+      },
+      "node_modules/node-pty": {
+        "version": "1.1.0",
+        "integrity": "sha512-20JqtutY6JPXTUnL0ij1uad7Qe1baT46lyolh2sSENDd4sTzKZ4nmAFkeAARDKwmlLjPx6XKRlwRUxwjOy+lUg=="
+      },
+      "node_modules/pty-manager": {
+        "version": "1.12.2",
+        "integrity": "sha512-g6xR4pCFuqkWapLcs0PwfsOP18foOgRlTylqbR9n4TuIqwyH54XOMA4nx9NKuUMNfwIbncVS7TYoRxgud+kvBw=="
+      }
+    },
+    "processes": [
+      {
+        "pid": 3818,
+        "ownedPids": [
+          3818,
+          3840,
+          3841,
+          3849,
+          3851,
+          3866,
+          3867,
+          3870,
+          3871,
+          3880,
+          3882,
+          3890,
+          3891,
+          3915,
+          3923,
+          3924,
+          3925,
+          3934,
+          3935
+        ],
+        "remainingPids": [],
+        "cleanup": "complete"
+      },
+      {
+        "pid": 3945,
+        "ownedPids": [
+          3945,
+          3954,
+          3977,
+          3981
+        ],
+        "remainingPids": [],
+        "cleanup": "complete"
+      },
+      {
+        "pid": 4000,
+        "ownedPids": [
+          4000,
+          4009,
+          4033,
+          4036
+        ],
+        "remainingPids": [],
+        "cleanup": "complete"
+      }
+    ],
+    "cleanupErrors": [],
+    "finishedAt": "2026-11-20T23:51:13.249Z"
+  },
+  "linuxImage": "node@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20",
+  "linuxBuildTools": [
+    "python3",
+    "make",
+    "g++",
+    "ca-certificates"
+  ],
+  "publication": {
+    "status": "not-published",
+    "registryVersionLookup": "1.12.2 E404",
+    "npmWhoami": "E401",
+    "githubActionsWorkflows": 0
+  },
+  "artifactDirectory": "/Users/jakobgrant/.codex/artifacts/look-90-prep02-20261120",
+  "regressions": {
+    "originalUnreleasedArchive": {
+      "sha256": "8aa50ddfd1fc35f31f471f091283c78e25fc66527a98cba9c0e71c18e555fedb",
+      "integrity": "sha512-11GCp9PYLxMDpRaxCyJPQRDf7BuhgDrFvTMSV8ghVlBv3WrHnyKb6UD5JlvnO0wsBLKjiNylLuYDXMJydDphgQ=="
+    },
+    "oldShimNativeSpawn": "failed in ESM: dynamic require of native node-pty unsupported",
+    "bareLinuxSlim": "node-pty install requires Python/compiler; final run used target build-stage prerequisites"
+  },
+  "qualificationToolOnlyPrerequisites": [
+    "procps (ps) on Linux for parent-owned process tracking"
+  ],
+  "cleanupRegressionTests": {
+    "macos": {
+      "missing-archive": {
+        "schemaVersion": 2,
+        "startedAt": "2026-11-20T23:49:35.509Z",
+        "node": "v24.22.1",
+        "platform": "darwin",
+        "arch": "arm64",
+        "status": "failed",
+        "checks": [],
+        "cleanup": "complete",
+        "error": "ENOENT: no such file or directory, open '/var/folders/9g/qfwzcj9x4bv7yq2838f4cwdc0000gn/T/pty-qualification-test-yjoTNl/missing.tgz'",
+        "processes": [],
+        "cleanupErrors": [],
+        "finishedAt": "2026-11-20T23:49:35.510Z"
+      },
+      "timeout": {
+        "schemaVersion": 2,
+        "startedAt": "2026-11-20T23:49:35.544Z",
+        "node": "v24.22.1",
+        "platform": "darwin",
+        "arch": "arm64",
+        "status": "failed",
+        "checks": [],
+        "cleanup": "complete",
+        "artifact": {
+          "sha256": "c46428ad701069cddd993077b430a13850cc50bba4ca4cd09b70a5ebf52bf4f7",
+          "integrity": "sha512-g6xR4pCFuqkWapLcs0PwfsOP18foOgRlTylqbR9n4TuIqwyH54XOMA4nx9NKuUMNfwIbncVS7TYoRxgud+kvBw=="
+        },
+        "scratch": "/var/folders/9g/qfwzcj9x4bv7yq2838f4cwdc0000gn/T/pty-qualification-test-DrJdh0/pty-package-qualification-wwy06r",
+        "dependencies": {
+          "node_modules/adapter-types": {
+            "version": "0.2.1",
+            "integrity": "sha512-IdA9om1M/GGHGB08RHd68sq+BDwgVdThA3ZoewzoGGOQjHgq1KNZNUQk7eVGqw+qtMA/ceYy9GjXLo++7IoReA=="
+          },
+          "node_modules/node-addon-api": {
+            "version": "7.1.1",
+            "integrity": "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="
+          },
+          "node_modules/node-pty": {
+            "version": "1.1.0",
+            "integrity": "sha512-20JqtutY6JPXTUnL0ij1uad7Qe1baT46lyolh2sSENDd4sTzKZ4nmAFkeAARDKwmlLjPx6XKRlwRUxwjOy+lUg=="
+          },
+          "node_modules/pty-manager": {
+            "version": "1.12.2",
+            "integrity": "sha512-g6xR4pCFuqkWapLcs0PwfsOP18foOgRlTylqbR9n4TuIqwyH54XOMA4nx9NKuUMNfwIbncVS7TYoRxgud+kvBw=="
+          }
+        },
+        "error": "Command timed out: /Users/jakobgrant/.nvm/versions/node/v24.22.1/bin/node",
+        "processes": [
+          {
+            "pid": 60628,
+            "ownedPids": [
+              60628
+            ],
+            "remainingPids": [],
+            "cleanup": "complete"
+          },
+          {
+            "pid": 60686,
+            "ownedPids": [
+              60686,
+              60692
+            ],
+            "remainingPids": [],
+            "cleanup": "complete"
+          }
+        ],
+        "cleanupErrors": [],
+        "finishedAt": "2026-11-20T23:49:37.412Z"
+      },
+      "cancel": {
+        "schemaVersion": 2,
+        "startedAt": "2026-11-20T23:49:37.448Z",
+        "node": "v24.22.1",
+        "platform": "darwin",
+        "arch": "arm64",
+        "status": "cancelled",
+        "checks": [],
+        "cleanup": "complete",
+        "artifact": {
+          "sha256": "c46428ad701069cddd993077b430a13850cc50bba4ca4cd09b70a5ebf52bf4f7",
+          "integrity": "sha512-g6xR4pCFuqkWapLcs0PwfsOP18foOgRlTylqbR9n4TuIqwyH54XOMA4nx9NKuUMNfwIbncVS7TYoRxgud+kvBw=="
+        },
+        "scratch": "/var/folders/9g/qfwzcj9x4bv7yq2838f4cwdc0000gn/T/pty-qualification-test-ZSAjzw/pty-package-qualification-TPLfDd",
+        "dependencies": {
+          "node_modules/adapter-types": {
+            "version": "0.2.1",
+            "integrity": "sha512-IdA9om1M/GGHGB08RHd68sq+BDwgVdThA3ZoewzoGGOQjHgq1KNZNUQk7eVGqw+qtMA/ceYy9GjXLo++7IoReA=="
+          },
+          "node_modules/node-addon-api": {
+            "version": "7.1.1",
+            "integrity": "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="
+          },
+          "node_modules/node-pty": {
+            "version": "1.1.0",
+            "integrity": "sha512-20JqtutY6JPXTUnL0ij1uad7Qe1baT46lyolh2sSENDd4sTzKZ4nmAFkeAARDKwmlLjPx6XKRlwRUxwjOy+lUg=="
+          },
+          "node_modules/pty-manager": {
+            "version": "1.12.2",
+            "integrity": "sha512-g6xR4pCFuqkWapLcs0PwfsOP18foOgRlTylqbR9n4TuIqwyH54XOMA4nx9NKuUMNfwIbncVS7TYoRxgud+kvBw=="
+          }
+        },
+        "error": "Cancelled by SIGTERM",
+        "processes": [
+          {
+            "pid": 60758,
+            "ownedPids": [
+              60758
+            ],
+            "remainingPids": [],
+            "cleanup": "complete"
+          },
+          {
+            "pid": 60834,
+            "ownedPids": [
+              60834,
+              60835
+            ],
+            "remainingPids": [],
+            "cleanup": "complete"
+          }
+        ],
+        "cleanupErrors": [],
+        "finishedAt": "2026-11-20T23:49:39.105Z"
+      }
+    },
+    "linux": {
+      "missing-archive": {
+        "schemaVersion": 2,
+        "startedAt": "2026-11-20T23:50:34.492Z",
+        "node": "v24.21.0",
+        "platform": "linux",
+        "arch": "x64",
+        "status": "failed",
+        "checks": [],
+        "cleanup": "complete",
+        "error": "ENOENT: no such file or directory, open '/tmp/pty-qualification-test-1fS5U7/missing.tgz'",
+        "processes": [],
+        "cleanupErrors": [],
+        "finishedAt": "2026-11-20T23:50:34.501Z"
+      },
+      "timeout": {
+        "schemaVersion": 2,
+        "startedAt": "2026-11-20T23:50:34.950Z",
+        "node": "v24.21.0",
+        "platform": "linux",
+        "arch": "x64",
+        "status": "failed",
+        "checks": [],
+        "cleanup": "complete",
+        "artifact": {
+          "sha256": "c46428ad701069cddd993077b430a13850cc50bba4ca4cd09b70a5ebf52bf4f7",
+          "integrity": "sha512-g6xR4pCFuqkWapLcs0PwfsOP18foOgRlTylqbR9n4TuIqwyH54XOMA4nx9NKuUMNfwIbncVS7TYoRxgud+kvBw=="
+        },
+        "scratch": "/tmp/pty-qualification-test-RJ6h9A/pty-package-qualification-mg4Al4",
+        "dependencies": {
+          "node_modules/adapter-types": {
+            "version": "0.2.1",
+            "integrity": "sha512-IdA9om1M/GGHGB08RHd68sq+BDwgVdThA3ZoewzoGGOQjHgq1KNZNUQk7eVGqw+qtMA/ceYy9GjXLo++7IoReA=="
+          },
+          "node_modules/node-addon-api": {
+            "version": "7.1.1",
+            "integrity": "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="
+          },
+          "node_modules/node-pty": {
+            "version": "1.1.0",
+            "integrity": "sha512-20JqtutY6JPXTUnL0ij1uad7Qe1baT46lyolh2sSENDd4sTzKZ4nmAFkeAARDKwmlLjPx6XKRlwRUxwjOy+lUg=="
+          },
+          "node_modules/pty-manager": {
+            "version": "1.12.2",
+            "integrity": "sha512-g6xR4pCFuqkWapLcs0PwfsOP18foOgRlTylqbR9n4TuIqwyH54XOMA4nx9NKuUMNfwIbncVS7TYoRxgud+kvBw=="
+          }
+        },
+        "error": "Command timed out: /usr/local/bin/node",
+        "processes": [
+          {
+            "pid": 3525,
+            "ownedPids": [
+              3525,
+              3546,
+              3548,
+              3556,
+              3557,
+              3574,
+              3577,
+              3578,
+              3587,
+              3594,
+              3597,
+              3598,
+              3628,
+              3638,
+              3641,
+              3642
+            ],
+            "remainingPids": [],
+            "cleanup": "complete"
+          },
+          {
+            "pid": 3651,
+            "ownedPids": [
+              3651,
+              3660
+            ],
+            "remainingPids": [],
+            "cleanup": "complete"
+          }
+        ],
+        "cleanupErrors": [],
+        "finishedAt": "2026-11-20T23:50:42.978Z"
+      },
+      "cancel": {
+        "schemaVersion": 2,
+        "startedAt": "2026-11-20T23:50:43.416Z",
+        "node": "v24.21.0",
+        "platform": "linux",
+        "arch": "x64",
+        "status": "cancelled",
+        "checks": [],
+        "cleanup": "complete",
+        "artifact": {
+          "sha256": "c46428ad701069cddd993077b430a13850cc50bba4ca4cd09b70a5ebf52bf4f7",
+          "integrity": "sha512-g6xR4pCFuqkWapLcs0PwfsOP18foOgRlTylqbR9n4TuIqwyH54XOMA4nx9NKuUMNfwIbncVS7TYoRxgud+kvBw=="
+        },
+        "scratch": "/tmp/pty-qualification-test-xzzpyF/pty-package-qualification-0VYgVb",
+        "dependencies": {
+          "node_modules/adapter-types": {
+            "version": "0.2.1",
+            "integrity": "sha512-IdA9om1M/GGHGB08RHd68sq+BDwgVdThA3ZoewzoGGOQjHgq1KNZNUQk7eVGqw+qtMA/ceYy9GjXLo++7IoReA=="
+          },
+          "node_modules/node-addon-api": {
+            "version": "7.1.1",
+            "integrity": "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="
+          },
+          "node_modules/node-pty": {
+            "version": "1.1.0",
+            "integrity": "sha512-20JqtutY6JPXTUnL0ij1uad7Qe1baT46lyolh2sSENDd4sTzKZ4nmAFkeAARDKwmlLjPx6XKRlwRUxwjOy+lUg=="
+          },
+          "node_modules/pty-manager": {
+            "version": "1.12.2",
+            "integrity": "sha512-g6xR4pCFuqkWapLcs0PwfsOP18foOgRlTylqbR9n4TuIqwyH54XOMA4nx9NKuUMNfwIbncVS7TYoRxgud+kvBw=="
+          }
+        },
+        "error": "Cancelled by SIGTERM",
+        "processes": [
+          {
+            "pid": 3672,
+            "ownedPids": [
+              3672,
+              3694,
+              3695,
+              3704,
+              3705,
+              3718,
+              3721,
+              3724,
+              3725,
+              3735,
+              3744,
+              3745,
+              3756,
+              3773,
+              3783,
+              3788,
+              3789
+            ],
+            "remainingPids": [],
+            "cleanup": "complete"
+          },
+          {
+            "pid": 3798,
+            "ownedPids": [
+              3798,
+              3807
+            ],
+            "remainingPids": [],
+            "cleanup": "complete"
+          }
+        ],
+        "cleanupErrors": [],
+        "finishedAt": "2026-11-20T23:50:51.354Z"
+      }
+    }
+  },
+  "qualificationCommands": {
+    "macos": "env PATH=/Users/jakobgrant/.nvm/versions/node/v24.22.1/bin:/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin PTY_QUALIFICATION_TARBALL=/Users/jakobgrant/.codex/artifacts/look-90-prep02-20261120/pty-manager-1.12.2.tgz PTY_QUALIFICATION_EVIDENCE=/Users/jakobgrant/.codex/artifacts/look-90-prep02-20261120/review-fixes/macos node --test tests/package-qualification/cleanup.test.mjs",
+    "linux": "docker run --rm --name pty-prep02-reviewfix-20261120-linux --label task=look-90-prep02-reviewfix --platform linux/amd64 --mount type=bind,src=/Users/jakobgrant/Workspaces/pty-manager,dst=/repo,readonly --mount type=bind,src=/Users/jakobgrant/.codex/artifacts/look-90-prep02-20261120,dst=/evidence node@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20 sh -c 'apt-get update > /evidence/review-fixes/linux-toolchain.log 2>&1 && apt-get install -y --no-install-recommends python3 make g++ ca-certificates procps >> /evidence/review-fixes/linux-toolchain.log 2>&1 && cd /repo && PTY_QUALIFICATION_TARBALL=/evidence/pty-manager-1.12.2.tgz PTY_QUALIFICATION_EVIDENCE=/evidence/review-fixes/linux PTY_QUALIFICATION_NODE_HEADERS=/usr/local node --test tests/package-qualification/cleanup.test.mjs'"
+  },
+  "cleanupReviewFixes": {
+    "P1": "Async parent-owned descendant/PTY PID tracking, bounded timeout/signal cleanup, verified remaining PID checks and failure/incomplete receipts; live PTY negative tests pass on both target platforms.",
+    "P2": "Tarball read occurs before scratch allocation; missing-archive negative test confirms failed receipt, empty process ledger and no scratch on both platforms."
+  }
+}

@@ -5,10 +5,11 @@ All notable changes to `pty-manager` will be documented in this file.
 ## [1.12.2] - Unreleased
 
 ### Fixed
-- **ESM consumers crashed on spawn** — the ESM build (`dist/index.mjs`) referenced `__dirname`, which does not exist in ES modules, so `ensurePty()` and therefore `PTYManager.spawn()` threw `ReferenceError: __dirname is not defined` for any `import`-based consumer. The tsup ESM build now injects `__dirname`/`__filename`/`require` shims. CommonJS consumers were unaffected.
+- **ESM consumers crashed on spawn** — the ESM build (`dist/index.mjs`) referenced `__dirname`, which does not exist in ES modules, so `ensurePty()` threw `ReferenceError: __dirname is not defined`. The build now supplies filename/directory shims and a Node `createRequire` bridge for the external native `node-pty` dependency. The directory shim alone passed preflight but still failed during actual PTY spawn. CommonJS consumers were unaffected.
 
 ### Added
-- `pnpm test:dist` builds the package and checks that both the ESM and CommonJS outputs load and run `ensurePty()`.
+- `pnpm test:dist` builds the package and checks that both the ESM and CommonJS outputs load, run `ensurePty()`, and actually spawn a native PTY.
+- `pnpm qualify:package --tarball PATH --receipt PATH` installs an exact archive into a clean consumer and proves shell input/output, natural exit, cancellation, shutdown and PID cleanup through both module entries.
 
 ### Changed
 - `pnpm test` runs once (`vitest run`) instead of watching; `pnpm test:watch` keeps the watcher.

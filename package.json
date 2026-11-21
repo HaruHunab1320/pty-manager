@@ -34,7 +34,8 @@
     "clean": "rm -rf dist",
     "prepublishOnly": "pnpm run build",
     "test:watch": "vitest",
-    "test:dist": "pnpm build && node --test tests/build-output/*.test.mjs"
+    "test:dist": "pnpm build && node --test tests/build-output/*.test.mjs",
+    "qualify:package": "node scripts/qualify-package.mjs"
   },
   "keywords": [
     "pty",
