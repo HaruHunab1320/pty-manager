@@ -2,6 +2,13 @@
 
 All notable changes to `pty-manager` will be documented in this file.
 
+## [1.12.3] - Unreleased
+
+### Fixed
+- Keep substantive questions pending across terminal turn completion; emit the question without marking the task complete, while preserving authentication and permission prompt priority.
+- Keep unanswered questions pending when terminal input fails or a delayed Enter has not been delivered. Successful input requires subsequent terminal output before another completion can be emitted.
+- Retire stale permission and menu output only after terminal input succeeds, including navigation keys; preserve synchronous continuation output and failed-input state.
+
 ## [1.12.2] - Unreleased
 
 ### Fixed
